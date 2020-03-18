@@ -20,8 +20,6 @@ var path;
 var turrets;
 var enemies;
 
-var ENEMY_SPEED = 1/10000;
-
 var BULLET_DAMAGE = 10;
 
 var map =  [[ 0,-1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -50,6 +48,7 @@ var Enemy = new Phaser.Class({
 
             this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
             this.hp = 0;
+            this._Velocidad = 1/10000;
         },
 
         startOnPath: function ()
@@ -72,7 +71,7 @@ var Enemy = new Phaser.Class({
         },
         update: function (time, delta)
         {
-            this.follower.t += ENEMY_SPEED * delta;
+            this.follower.t += this._Velocidad * delta;
             path.getPoint(this.follower.t, this.follower.vec);
             
             this.setPosition(this.follower.vec.x, this.follower.vec.y);
@@ -89,8 +88,9 @@ var Enemy = new Phaser.Class({
 function getEnemy(x, y, distance) {
     var enemyUnits = enemies.getChildren();
     for(var i = 0; i < enemyUnits.length; i++) {       
-        if(enemyUnits[i].active && Phaser.Math.Distance.Between(x, y, enemyUnits[i].x, enemyUnits[i].y) < distance)
+        if(enemyUnits[i].active && Phaser.Math.Distance.Between(x, y, enemyUnits[i].x, enemyUnits[i].y) < distance){
             return enemyUnits[i];
+        }
     }
     return false;
 } 
