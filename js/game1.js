@@ -1,8 +1,8 @@
 var _Config = {
     type: Phaser.AUTO,
     parent: 'content',
-    width: 800,
-    height: 600,
+    width: 640,
+    height: 512,
     backgroundColor: '#000000',
     physics: {
         default: 'arcade'
@@ -55,6 +55,7 @@ function create() {
     
     this.nextEnemy = 0;
     
+    //Hace que Enemigos y Proyectiles llamen a la funcion damageEnemy cuando colisionan.
     this.physics.add.overlap(_Enemigos, bullets, damageEnemy);
     
     this.input.on('pointerdown', placeTurret);
@@ -82,10 +83,13 @@ function update(time, delta) {
             enemy.setVisible(true);
             enemy.startOnPath();
     
-            this.nextEnemy = time + 2000;
+            this.nextEnemy = time + 1000;
+            console.log(enemy._Id + " reactivado!");
         }       
     }
 }
+
+
 
 var Enemy = new Phaser.Class({
 
@@ -99,7 +103,9 @@ var Enemy = new Phaser.Class({
 
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
         this.hp = 0;
-        this._Velocidad = 2/10000;
+        this._Id = _Enemigos.getChildren().length;
+        this._Velocidad = 1/10000;
+        console.log("Enemigo creado!");
     },
 
     startOnPath: function ()
@@ -129,6 +135,7 @@ var Enemy = new Phaser.Class({
 
         if (this.follower.t >= 1)
         {
+            console.log(this._Id + " desactivado!");
             this.setActive(false);
             this.setVisible(false);
         }
@@ -229,7 +236,7 @@ function getEnemy(x, y, distance) {
 } 
 function damageEnemy(enemy, bullet) {  
     // only if both enemy and bullet are alive
-    if (enemy.active === true && bullet.active === true) {
+    if (enemy.active && bullet.active) {
         // we remove the bullet right away
         bullet.setActive(false);
         bullet.setVisible(false);    
