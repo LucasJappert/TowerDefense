@@ -5,7 +5,8 @@ export default class MainGame extends Phaser.Scene{
 
     preload() {   
         this.load.atlas('sprites', 'assets/spritesheet.png', 'assets/spritesheet.json');
-        this.load.image('bullet', 'assets/bullet.png');
+        this.load.audio("Disparo", "/assets/Audio/Disparo.wav");
+        this.load.audio("Explosion", "/assets/Audio/Explosion.mp3");
     }
     
     create() {
@@ -30,6 +31,8 @@ export default class MainGame extends Phaser.Scene{
         _Proyectiles = this.physics.add.group({ classType: _Proyectil, runChildUpdate: true });
         
         this.nextEnemy = 0;
+        this.AudioDisparo = this.sound.add("Disparo", {volume: 0.02});
+        this.AudioExplosion = this.sound.add("Explosion", {volume: 0.07});
 
         this.scene.launch("EscenaTextos");
 
@@ -146,6 +149,7 @@ var Enemigo = new Phaser.Class({
         
         // if hp drops below 0 we deactivate this enemy
         if(this.hp <= 0) {
+            //this.scene.AudioExplosion.play();
             this.scene.registry.events.emit("EnemigoDestruido", this);      
         }
     },
@@ -188,18 +192,20 @@ var Defensa = new Phaser.Class({
         _Mapa[i][j] = 1;            
     },
     fire: function() {
-        var enemy = ObtenerEnemigo(this.x, this.y, 200);
+        var enemy = ObtenerEnemigo(this.x, this.y, 600);
         if(enemy) {
             var angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y);
             NuevoProyectil(this.x, this.y, angle);
             this.angle = (angle + Math.PI/2) * Phaser.Math.RAD_TO_DEG;
+            //this.scene.AudioDisparo.play();
+            //this.scene.sound.add("Disparo", {volume: 0.015}).play();
         }
     },
     update: function (time, delta)
     {
         if(time > this.nextTic) {
             this.fire();
-            this.nextTic = time + 1000;
+            this.nextTic = time + 500;
         }
     }
 
@@ -225,13 +231,17 @@ var _Proyectil = new Phaser.Class({
 
     function Bullet (scene)
     {
-        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+        var _Aux = "Proyectil" + Phaser.Math.Between(1, 3);
+        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', _Aux);
+        //Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 
         this.incX = 0;
         this.incY = 0;
         this.lifespan = 0;
 
-        this.speed = Phaser.Math.GetSpeed(600, 1);
+        this.speed = Phaser.Math.GetSpeed(40, 1);
+        //console.log(this);
+        this.setScale(1);
     },
 
     fire: function (x, y, angle)
@@ -247,7 +257,7 @@ var _Proyectil = new Phaser.Class({
         this.dx = Math.cos(angle);
         this.dy = Math.sin(angle);
 
-        this.lifespan = 1000;
+        this.lifespan = 5000;
     },
 
     update: function (time, delta)
@@ -259,8 +269,8 @@ var _Proyectil = new Phaser.Class({
 
         if (this.lifespan <= 0)
         {
-            this.setActive(false);
-            this.setVisible(false);
+            // this.setActive(false);
+            // this.setVisible(false);
         }
     }
 
