@@ -4,7 +4,7 @@ import EscenaTextos from "./EscenaTextos.js";
 var _Config = {
     type: Phaser.AUTO,
     parent: 'content',
-    width: 640,
+    width: 704,
     height: 512,
     backgroundColor: '#000000',
     physics: {
@@ -20,13 +20,11 @@ var _Config = {
 
 var _Game = new Phaser.Game(_Config);
 
-var _Texto;
-
 function create(){
     //Primero levantar la pantalla de Inicio
 
     //Larga el juego directamente
-    this.scene.launch("MainGame");
+    this.scene.launch("EscenaMain");
 }
                 
 
