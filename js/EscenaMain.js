@@ -1,3 +1,6 @@
+//import Enemigo from "/js/Clases/Enemigo.js";
+//import * as Enemigo from "/js/Clases/Prueba.js";
+
 export default class MainGame extends Phaser.Scene{
     constructor(){
         super({key: "EscenaMain"});
@@ -7,29 +10,36 @@ export default class MainGame extends Phaser.Scene{
         this.load.atlas('sprites', 'assets/spritesheet.png', 'assets/spritesheet.json');
         this.load.audio("Disparo", "/assets/Audio/Disparo.wav");
         this.load.audio("Explosion", "/assets/Audio/Explosion.mp3");
+        this.load.spritesheet("Atlas", "/assets/Atlas.png", {frameWidth: 256, frameHeight: 256});
     }
     
     create() {
-        var graphics = this.add.graphics();    
-        this.DibujarCuadricula(graphics);
-        _Path = this.add.path(96, -32);
-        _Path.lineTo(96, 352);
-        _Path.ellipseTo(64, 64, 180, 360, true, 0);
-        _Path.lineTo(3.5 * 64, 2.5 * 64);
-        _Path.ellipseTo(64, 64, 180, 360, false, 0);
-        _Path.lineTo(5.5 * 64, 5.5 * 64);
-        _Path.ellipseTo(64, 64, 180, 360, true, 0);
-        _Path.lineTo(7.5 * 64, 2.5 * 64);
-        _Path.ellipseTo(64, 64, 180, 360, false, 0);
-        _Path.lineTo(9.5 * 64, 8.5 * 64);
+        this.IniciarVariables();
+        //this.scale.startFullscreen();
+        this._Explosion = this.add.sprite(0, 0, "Atlas");
+        this.anims.create({
+            key: "Explosion",
+            frames: this.anims.generateFrameNumbers("Atlas", {
+                frames:[8, 9, 10, 11, 12]
+            }),
+            // duration: 2000,
+            frameRate: 20,
+            hideOnComplete: true
+        });
+        this._Explosion.setActive(false).setVisible(false);
+
+        this._GraficaBase = this.add.graphics();
+
+        this.DibujarCuadricula();
+        this.ArmarPath();
         
-        graphics.lineStyle(2, 0xffffff, 1);
-        _Path.draw(graphics);
-                
+        ArmarBotonesDefensas(this);
+
         _Enemigos = this.physics.add.group({ classType: Enemigo, runChildUpdate: true });
         _Defensas = this.add.group({ classType: Defensa, runChildUpdate: true });
         _Proyectiles = this.physics.add.group({ classType: _Proyectil, runChildUpdate: true });
         
+
         this.nextEnemy = 0;
         this.AudioDisparo = this.sound.add("Disparo", {volume: 0.02});
         this.AudioExplosion = this.sound.add("Explosion", {volume: 0.07});
@@ -42,7 +52,28 @@ export default class MainGame extends Phaser.Scene{
         this.physics.add.overlap(_Enemigos, _Proyectiles, ProvocarDaño);
         
         this.input.on('pointerdown', (pointer) => {
-            PlantarDefensa(this, pointer);
+            //PlantarDefensa(this, pointer);
+        });
+        
+        //  The pointer has to move 16 pixels before it's considered as a drag
+        this.input.dragDistanceThreshold = 16;
+        this.input.on('dragstart', function (pointer, _Objeto) {
+            _Objeto.setTint(0x00ff00);
+        });
+        this.input.on('drag', function (pointer, _Objeto, dragX, dragY) {
+            _Objeto.x = pointer.x;
+            _Objeto.y = pointer.y;
+        });
+        this.input.on('dragend', function (pointer, _Objeto) {
+            if(_Objeto.getData("TorreDefensa")){
+                if (ClickEnCuadricula(pointer)){
+                    PlantarDefensa(this.scene, pointer, _Objeto._TipoTorre);
+                }
+            }
+            _Objeto.destroy();
+        });
+        this.input.on('pointerup', function (pointer, _Objeto) {
+            //PlantarDefensa(this, pointer);
         });
         this.registry.events.on("changedata", (parent, key, data) => {
             DatosActualizados(parent, key, data);
@@ -52,6 +83,9 @@ export default class MainGame extends Phaser.Scene{
         });
         this.registry.events.on("EnemigoDestruido", (_Enemigo) => {
             EnemigoDestruido(this, _Enemigo);
+        });
+        this.input.on('gameobjectdown', function (_Pointer, _Objeto) {
+            ClickEnObjeto(this, _Pointer, _Objeto);
         });
 
     }
@@ -68,28 +102,51 @@ export default class MainGame extends Phaser.Scene{
                     enemy.setVisible(true);
                     enemy.startOnPath();
             
-                    this.nextEnemy = time + 1000;
+                    this.nextEnemy = time + Phaser.Math.Between(100, 9000);
                     //console.log("Enemigo " + enemy._Id + " CREADO!");
                 }   
             }
             else{
                 //TODO - Game Over
-                sdsdsd
+                this.scene.pause();
                 console.log("GAME OVER");
             }    
         }
     }
-    DibujarCuadricula(graphics) {
-        graphics.lineStyle(1, 0xcccccc, 0.8);
-        for(var i = 0; i < 8; i++) {
-            graphics.moveTo(0, i * 64);
-            graphics.lineTo(704, i * 64);
+    DibujarCuadricula() {
+        this._GraficaBase.lineStyle(1, 0xcccccc, 0.8);
+        for(var i = 0; i <= 11; i++) {
+            this._GraficaBase.moveTo(i * 64, 64);
+            this._GraficaBase.lineTo(i * 64, 13 * 64 + 64);
         }
-        for(var j = 0; j < 11; j++) {
-            graphics.moveTo(j * 64, 0);
-            graphics.lineTo(j * 64, 512);
+        for(var j = 1; j <= 14; j++) {
+            this._GraficaBase.moveTo(0, j * 64);
+            this._GraficaBase.lineTo(11 * 64, j * 64);
         }
-        graphics.strokePath();
+        this._GraficaBase.strokePath();
+    }
+    ArmarPath(){
+        _Path = this.add.path(-32, 64*2.5);
+        _Path.lineTo(64*8.5, 64*2.5);
+        _Path.ellipseTo(64, 64, 0, 180, false, -90);
+        _Path.lineTo(64*2.5, 64*4.5);
+        _Path.ellipseTo(64, 64, 0, 180, true, -90);
+        _Path.lineTo(64*8.5, 64*6.5);
+        _Path.ellipseTo(64, 64, 0, 180, false, -90);
+        _Path.lineTo(64*2.5, 64*8.5);
+        _Path.ellipseTo(64, 64, 0, -90, true, -90);
+        _Path.lineTo(64*1.5, 64*11.5);
+        _Path.ellipseTo(64, 64, 0, -180, true, 180);
+        _Path.ellipseTo(64, 64, 0, 90, false, 180);
+        _Path.lineTo(64*6.5, 64*10.5);
+        _Path.ellipseTo(64, 64, 0, 90, false, -90);
+        _Path.ellipseTo(64, 64, 0, -90, true, 180);
+        _Path.lineTo(64*11.5, 64*12.5);
+        this._GraficaBase.lineStyle(2, 0xffffff, 1);
+        _Path.draw(this._GraficaBase);
+    }
+    IniciarVariables(){
+        this._DefensaArrastrada = null;
     }
 
     static asdasd(){
@@ -100,22 +157,48 @@ export default class MainGame extends Phaser.Scene{
 //#region PROPIEDADES
 
 var _Path;
-var _Mapa =    [[ 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [ 0,-1, 0,-1,-1,-1, 0,-1,-1,-1, 0],
-                [ 0,-1, 0,-1, 0,-1, 0,-1, 0,-1, 0],
-                [ 0,-1, 0,-1, 0,-1, 0,-1, 0,-1, 0],
-                [ 0,-1, 0,-1, 0,-1, 0,-1, 0,-1, 0],
-                [ 0,-1, 0,-1, 0,-1, 0,-1, 0,-1, 0],
-                [ 0,-1,-1,-1, 0,-1,-1,-1, 0,-1, 0],
-                [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0]];
+var _Mapa =    [[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0],
+                [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0],
+                [ 0,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0],
+                [ 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [ 0,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0],
+                [ 0, 0, 0, 0, 0, 0, 0, 0, 0,-1, 0],
+                [ 0,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0],
+                [ 0,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [ 0,-1, 0,-1,-1,-1,-1,-1, 0, 0, 0],
+                [ 0,-1, 0,-1, 0, 0, 0,-1, 0, 0, 0],
+                [ 0,-1,-1,-1, 0, 0, 0,-1,-1,-1,-1],
+                [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
 var _Enemigos; var _Defensas; var _Proyectiles;
 var _DañoProyectil = 10;
 var _Ids = 1;
-var _Vidas = 200;
+var _Vidas = 50;
 var _Puntaje = 0;
 var _Monedas = 1000;
 //#endregion
 
+//#region ENUMERADORES
+var EnumTipoTorre = {
+    TorreDeArqueros: 1,
+    TorreMagica: 2,
+    TorreBombardera: 3,
+    TorreEnvenenada: 4,
+    Prop:{
+        1: {_Name: "TorreDeArqueros", _Valor: 1},
+        2: {_Name: "TorreMagica", _Valor: 2},
+        3: {_Name: "TorreBombardera", _Valor: 3},
+        4: {_Name: "TorreEnvenenada", _Valor: 4}
+    }
+  };
+  var _TipoDaño = {
+    Fisico: 1,
+    Magico: 2,
+    Puro: 3
+  };
+//#endregion
+
+//#region CLASES
 
 //#region Enemigo
 var Enemigo = new Phaser.Class({
@@ -127,28 +210,27 @@ var Enemigo = new Phaser.Class({
     function Enemigo (scene)
     {
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'enemy');
-
+        this.setTint(0xff0000);
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
-        this.hp = 0;
+        this._VidaTotal = 0;
+        this._VidaActual = 0;
         this._Id = _Ids;
         this._Puntaje = 1;//Phaser.Math.Between(2, 9);
         _Ids += 1;
         this._Velocidad = 1/20000;
     },
-
     startOnPath: function ()
     {
         this.follower.t = 0;
-        this.hp = 100;
+        this._VidaTotal = 100;
+        this._VidaActual = this._VidaTotal;
         _Path.getPoint(this.follower.t, this.follower.vec);
         
         this.setPosition(this.follower.vec.x, this.follower.vec.y);            
     },
     receiveDamage: function(damage) {
-        this.hp -= damage;           
-        
-        // if hp drops below 0 we deactivate this enemy
-        if(this.hp <= 0) {
+        this._VidaActual -= damage;
+        if(this._VidaActual <= 0) {
             //this.scene.AudioExplosion.play();
             this.scene.registry.events.emit("EnemigoDestruido", this);      
         }
@@ -157,17 +239,26 @@ var Enemigo = new Phaser.Class({
     {
         this.follower.t += this._Velocidad * delta;
         _Path.getPoint(this.follower.t, this.follower.vec);
-        
+        //this.setTint(Math.random() * 0xffffff);
         this.setPosition(this.follower.vec.x, this.follower.vec.y);
 
         //Evento cuando un Enemigo llega a Base
-        if (this.follower.t >= 1 && this.hp > 0){
+        if (this.follower.t >= 1 && this._VidaActual > 0){
             this.scene.registry.events.emit("EnemigoLlegaABase", 1);
         }
         //Elimino el Enemigo
-        if (this.follower.t >= 1 || this.hp <= 0)
+        if (this.follower.t >= 1 || this._VidaActual <= 0)
         {
             _Enemigos.remove(this, true, true);
+        }else{
+            var _Porc = Math.abs(this._VidaActual / this._VidaTotal);
+            if(_Porc < 0.3){
+                this.setTint(0xff9999);
+            }else if(_Porc < 0.6){
+                this.setTint(0xff5555);
+            }else{
+                this.setTint(0xff2222);
+            }
         }
     }
 
@@ -181,31 +272,38 @@ var Defensa = new Phaser.Class({
 
     initialize:
 
-    function Defensa (scene)
+    function Defensa (_Escena, _TipoTorre)
     {
-        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'turret');
-        this.nextTic = 0;
+        var _Nombre = EnumTipoTorre.Prop[_TipoTorre]._Name;
+        Phaser.GameObjects.Image.call(this, _Escena, 0, 0, 'sprites', _Nombre);
+        this.setInteractive({ cursor: 'pointer' });
+        this.setScale(1/128 * 64);
+        this.setData("Defensa", true);
+        this._Info = new InfoTorre(_TipoTorre);
+        this._TiempoProximoDisparo = 0;
+        this._VelocidadDisparo = this._Info._VelocidadDelProyectil;
+        _Escena.add.existing(this);
     },
-    place: function(i, j) {            
-        this.y = i * 64 + 64/2;
+    place: function(i, j) {  
+        this.y = (i + 1) * 64 + 64/2;
         this.x = j * 64 + 64/2;
-        _Mapa[i][j] = 1;            
+        _Mapa[i][j] = 1;          
     },
     fire: function() {
-        var enemy = ObtenerEnemigo(this.x, this.y, 600);
+        var enemy = ObtenerEnemigo(this.x, this.y, this._Info._RangoEnPix);
         if(enemy) {
             var angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y);
-            NuevoProyectil(this.x, this.y, angle);
-            this.angle = (angle + Math.PI/2) * Phaser.Math.RAD_TO_DEG;
+            NuevoProyectil(this.x, this.y, angle, enemy.x, enemy.y);
+            //this.angle = (angle + Math.PI/2) * Phaser.Math.RAD_TO_DEG;
             //this.scene.AudioDisparo.play();
             //this.scene.sound.add("Disparo", {volume: 0.015}).play();
         }
     },
     update: function (time, delta)
     {
-        if(time > this.nextTic) {
+        if(time > this._TiempoProximoDisparo) {
             this.fire();
-            this.nextTic = time + 500;
+            this._TiempoProximoDisparo = time + this._Info._AS;
         }
     }
 
@@ -224,59 +322,70 @@ function ObtenerEnemigo(x, y, distance) {
 
 //#region Proyectil
 var _Proyectil = new Phaser.Class({
-
     Extends: Phaser.GameObjects.Image,
 
     initialize:
 
-    function Bullet (scene)
+    function Bullet (scene, _Angulo)
     {
-        var _Aux = "Proyectil" + Phaser.Math.Between(1, 3);
-        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', _Aux);
+        //var _Aux = "Proyectil" + Phaser.Math.Between(1, 3);
+        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', "ProyectilFlecha");
         //Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
-
-        this.incX = 0;
-        this.incY = 0;
-        this.lifespan = 0;
-
-        this.speed = Phaser.Math.GetSpeed(40, 1);
-        //console.log(this);
-        this.setScale(1);
+        this.setTint(Math.random() * 0xffffff);
+        this.InicioX = 0;
+        this.InicioY = 0;
+        this.RecorridoTotal = 0;
+        this.speed = Phaser.Math.GetSpeed(500, 1);
+        //this.setScale(1);
     },
 
-    fire: function (x, y, angle)
+    fire: function (x, y, angle, EnemyX, EnemyY)
     {
         this.setActive(true);
         this.setVisible(true);
         //  Bullets fire from the middle of the screen to the given x/y
         this.setPosition(x, y);
+        this.InicioX = x;
+        this.InicioY = y;
+        this.FinX = EnemyX;
+        this.FinY = EnemyY;
+        this.RecorridoTotal = Phaser.Math.Distance.Between(x, y, EnemyX, EnemyY);
         
     //  we don't need to rotate the bullets as they are round
     //    this.setRotation(angle);
+        this.setRotation(angle);
 
         this.dx = Math.cos(angle);
         this.dy = Math.sin(angle);
-
-        this.lifespan = 5000;
     },
 
     update: function (time, delta)
     {
-        this.lifespan -= delta;
 
         this.x += this.dx * (this.speed * delta);
         this.y += this.dy * (this.speed * delta);
 
-        if (this.lifespan <= 0)
+        var _RecoActual = Phaser.Math.Distance.Between(this.InicioX, this.InicioY, this.x, this.y);
+        if (this.RecorridoTotal < _RecoActual)
         {
-            // this.setActive(false);
-            // this.setVisible(false);
+            this.setActive(false);
+            this.setVisible(false);
         }
     }
 
 });
 //#endregion
 
+//#endregion
+
+//#region BOTONES
+function ArmarBotonesDefensas(_Escena){
+    _Escena._BotonTorreDeArqueros = NuevoBoton(_Escena, EnumTipoTorre.TorreDeArqueros, 1*64, 15*64);
+    _Escena._BotonTorreDeArqueros = NuevoBoton(_Escena, EnumTipoTorre.TorreMagica, 3*64, 15*64);
+    _Escena._BotonTorreDeArqueros = NuevoBoton(_Escena, EnumTipoTorre.TorreBombardera, 5*64, 15*64);
+    _Escena._BotonTorreDeArqueros = NuevoBoton(_Escena, EnumTipoTorre.TorreEnvenenada, 7*64, 15*64);
+}
+//#endregion
 
 //#region FUNCIONES
 
@@ -284,37 +393,48 @@ function ProvocarDaño(enemy, _Proyectil) {
     // only if both enemy and bullet are alive
     if (enemy.active && _Proyectil.active) {
         // we remove the bullet right away
-        _Proyectil.setActive(false);
-        _Proyectil.setVisible(false);    
+        // _Proyectil.setActive(false);
+        // _Proyectil.setVisible(false);    
         
         // decrease the enemy hp with BULLET_DAMAGE
         enemy.receiveDamage(_DañoProyectil);
     }
 }
-function PlantarDefensa(_Parent, _PuntoClickeado) {
-    if(_Monedas >= 100){
-        var i = Math.floor(_PuntoClickeado.y/64);
-        var j = Math.floor(_PuntoClickeado.x/64);
-        if(LugarPermitidoDefensa(i, j)) {
-            var turret = _Defensas.get();
-            if (turret)
-            {
-                turret.setActive(true);
-                turret.setVisible(true);
-                turret.place(i, j);
-                SumarMonedas(_Parent, -100);
-            }   
+function PlantarDefensa(_Escena, _PuntoClickeado, _Tipo) {
+        _PuntoClickeado.y -= 64;
+        if(_Monedas >= 100){
+            var i = Math.floor(_PuntoClickeado.y/64);
+            var j = Math.floor(_PuntoClickeado.x/64);
+            if(LugarPermitidoDefensa(i, j)) {
+                var _NuevaDefensa = new Defensa(_Escena, _Tipo);
+                //var _NuevaDefensa = _Defensas.get();
+                if (_NuevaDefensa)
+                {
+                    _NuevaDefensa.place(i, j);
+                    _Defensas.add(_NuevaDefensa);
+                    SumarMonedas(_Escena, -100);
+                }   
+            }
+        }
+}
+function ClickEnCuadricula(_PuntoClickeado){
+    if (_PuntoClickeado.y > 64 && _PuntoClickeado.y < 64 * 13 + 64 * 2){
+        return true;
+    }
+    return false;
+}
+function LugarPermitidoDefensa(i, j) {
+    if (i < _Mapa.length){
+        if (j < _Mapa[0].length){
+            return _Mapa[i][j] === 0;
         }
     }
 }
-function LugarPermitidoDefensa(i, j) {
-    return _Mapa[i][j] === 0;
-}
-function NuevoProyectil(x, y, angle) {
+function NuevoProyectil(x, y, angle, EnemyX, EnemyY) {
     var _Proyectil = _Proyectiles.get();
     if (_Proyectil)
     {
-        _Proyectil.fire(x, y, angle);
+        _Proyectil.fire(x, y, angle, EnemyX, EnemyY);
     }
 }
 function EnemigoLlegaABase(_Parent, _VidasRestadas){
@@ -325,6 +445,8 @@ function EnemigoDestruido(_Parent, _Enemigo){
     _Puntaje += _Enemigo._Puntaje;
     _Parent.scene.get("EscenaTextos").CambiarPuntaje(_Puntaje);
     SumarMonedas(_Parent, 10);
+    GenerarExplosion(_Parent, _Enemigo.x, _Enemigo.y, 64);
+    //GenerarExplosion(_Parent, _Enemigo.x, _Enemigo.y, 32);
 }
 function DatosActualizados(parent, _Key, _Data){
     if (_Key == "Monedas"){
@@ -338,4 +460,138 @@ function SumarMonedas(_Parent, _Valor){
     _Parent.scene.get("EscenaTextos").CambiarMonedas(_Monedas);
     
 }
+function ClickEnObjeto(_Parent, _Pointer, _Objeto){
+    if(_Objeto.getData("Defensa")){
+        MostrarAreaRango(_Parent.scene, _Objeto.x, _Objeto.y, _Objeto._Info._RangoEnPix);
+    }
+    else if(_Objeto.getData("TorreDefensa")){
+        _Objeto.setScale(0.5);
+        _Parent.scene._BotonTorreDeArqueros = NuevoBoton(_Parent.scene, _Objeto._TipoTorre, _Objeto.x, _Objeto.y);
+        _Parent.scene._DefensaArrastrada = _Objeto;
+    }
+}
+function MostrarAreaRango(_Escena, x, y, _Radio){
+    _Escena._AreaRango = _Escena.add.sprite(x, y, "Atlas");
+    _Escena.anims.create({
+        key: "AreaRango",
+        frames: _Escena.anims.generateFrameNumbers("Atlas", {
+            frames:[0]
+        }),
+        repeat: 10,
+        // duration: 2000,
+        frameRate: 20,
+        hideOnComplete: true
+    });
+    _Escena._AreaRango.setPosition(x, y);
+    _Escena._AreaRango.setScale((_Radio * 2) / 256);
+    _Escena._AreaRango.anims.play("AreaRango");
+}
+function GenerarExplosion(_Escena, x, y, _Radio){
+    new Explosion(_Escena, x, y, _Radio);
+}
+function NuevoBoton(_Escena, _TipoTorre, x, y){
+    var _Boton = _Escena.add.sprite(x, y, "sprites", EnumTipoTorre.Prop[_TipoTorre]._Name);
+    _Boton.setInteractive({ cursor: 'pointer' });
+    _Boton.setScale(0.8);
+    _Boton._TipoTorre = _TipoTorre; 
+    _Boton.setData("TorreDefensa", true);
+
+    _Escena.input.setDraggable(_Boton);
+    return _Boton;
+}
+//#endregion
+
+
+
+
+//#region CLASES AUXILIARES
+class Explosion extends Phaser.GameObjects.Sprite{
+    constructor(_Escena, x, y, _Radio){
+        super(_Escena, x, y);
+        _Escena._Explosion.setPosition(x, y);
+        _Escena._Explosion.setScale((_Radio * 2) / 256);
+        _Escena.add.existing(this);
+        this.play("Explosion");
+    }
+}
+class InfoTorre{
+    constructor(_TipoTorre){
+        this._TipoTorre = _TipoTorre;
+        this._TipoDaño = _TipoDaño.Fisico;
+        this._Daño = new Phaser.Math.Vector2(0, 0);
+        /**En casillas */
+        this._Rango = 1;
+        /**En milisegundos */
+        this._AS = 1000;
+        /**De 0 a 100 */
+        this._ChancesCritico = 0;
+        /**Mayor a 1 */
+        this._ValorCritico = 0;
+        /**De 0 a 100 */
+        this._Ralentizacion = 0;
+        this._AreaImpacto = 1;
+        this._VelocidadDelProyectil = Phaser.Math.GetSpeed(500, 1);
+        switch(_TipoTorre){
+            case 1: this.SetearInfo1(); break;
+            case 2: this.SetearInfo2(); break;
+            case 3: this.SetearInfo3(); break;
+            case 4: this.SetearInfo4(); break;
+        }
+
+        /**En Pixeles */
+        this._RangoEnPix = this._Rango * 64;
+    }
+    SetearInfo1(){
+        this._TipoDaño = _TipoDaño.Fisico;
+        this._Daño = new Phaser.Math.Vector2(7, 9);
+        this._Rango = 4;
+        this._AS = 1000;
+        this._ChancesCritico = 0;
+        this._ValorCritico = 0;
+        this._Ralentizacion = 0;
+        this._AreaImpacto = 0;
+        this._VelocidadDelProyectil = Phaser.Math.GetSpeed(500, 1);
+    }
+    SetearInfo2(){
+        this._TipoDaño = _TipoDaño.Fisico;
+        this._Daño = new Phaser.Math.Vector2(11, 14);
+        this._Rango = 3;
+        this._AS = 2000;
+        this._ChancesCritico = 0;
+        this._ValorCritico = 0;
+        this._Ralentizacion = 0;
+        this._AreaImpacto = 0;
+        this._VelocidadDelProyectil = Phaser.Math.GetSpeed(500, 1);
+    }
+    SetearInfo3(){
+        this._TipoDaño = _TipoDaño.Fisico;
+        this._Daño = new Phaser.Math.Vector2(7, 9);
+        this._Rango = 2.5;
+        this._AS = 1000;
+        this._ChancesCritico = 0;
+        this._ValorCritico = 0;
+        this._Ralentizacion = 0;
+        this._AreaImpacto = 0;
+        this._VelocidadDelProyectil = Phaser.Math.GetSpeed(500, 1);
+    }
+    SetearInfo4(){
+        this._TipoDaño = _TipoDaño.Fisico;
+        this._Daño = new Phaser.Math.Vector2(7, 9);
+        this._Rango = 2.5;
+        this._AS = 1000;
+        this._ChancesCritico = 0;
+        this._ValorCritico = 0;
+        this._Ralentizacion = 0;
+        this._AreaImpacto = 0;
+        this._VelocidadDelProyectil = Phaser.Math.GetSpeed(500, 1);
+    }
+}
+// class Boton extends Phaser.GameObjects.Image{
+//     constructor(_Escena, _Tipo, x, y){
+//         super(_Escena);
+//         var _Boton = _Escena.add.sprite(x, y, "sprites", "TorreDeArqueros")
+//         .setInteractive({ cursor: 'pointer' });
+//         return _Boton;
+//     }
+// }
 //#endregion

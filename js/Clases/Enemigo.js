@@ -1,17 +1,16 @@
 var Enemigo = new Phaser.Class({
-
     Extends: Phaser.GameObjects.Image,
-
+    
     initialize:
 
     function Enemigo (scene)
     {
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'enemy');
-
+        this.setTint(Math.random() * 0xffffff);
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
         this.hp = 0;
         this._Id = _Ids;
-        this._Puntaje = Phaser.Math.Between(2, 9);
+        this._Puntaje = 1;//Phaser.Math.Between(2, 9);
         _Ids += 1;
         this._Velocidad = 1/20000;
     },
@@ -29,6 +28,7 @@ var Enemigo = new Phaser.Class({
         
         // if hp drops below 0 we deactivate this enemy
         if(this.hp <= 0) {
+            //this.scene.AudioExplosion.play();
             this.scene.registry.events.emit("EnemigoDestruido", this);      
         }
     },
@@ -36,7 +36,7 @@ var Enemigo = new Phaser.Class({
     {
         this.follower.t += this._Velocidad * delta;
         _Path.getPoint(this.follower.t, this.follower.vec);
-        
+        this.setTint(Math.random() * 0xffffff);
         this.setPosition(this.follower.vec.x, this.follower.vec.y);
 
         //Evento cuando un Enemigo llega a Base
@@ -49,5 +49,7 @@ var Enemigo = new Phaser.Class({
             _Enemigos.remove(this, true, true);
         }
     }
+    
+})
 
-});
+export default Enemigo;
