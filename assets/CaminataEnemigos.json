@@ -1,0 +1,153 @@
+{
+  "anims": [
+    {
+      "key": "AnimCaminataEnemy1",
+      "type": "frame",
+      "frames": [
+        {
+          "key": "ImagenEnemy1",
+          "frame": 0
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 1
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 2
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 3
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 4
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 5
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 6
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 7
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 8
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 9
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 10
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 11
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 12
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 13
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 14
+        },
+        {
+          "key": "ImagenEnemy1",
+          "frame": 15
+        }
+      ],
+      "frameRate": 25,
+      "repeat": -1,
+      "showOnStart": true,
+      "hideOnComplete": true
+    },
+	{
+      "key": "AnimCaminataEnemy2",
+      "type": "frame",
+      "frames": [
+        {
+          "key": "ImagenEnemy2",
+          "frame": 0
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 1
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 2
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 3
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 4
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 5
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 6
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 7
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 8
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 9
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 10
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 11
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 12
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 13
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 14
+        },
+        {
+          "key": "ImagenEnemy2",
+          "frame": 15
+        }
+      ],
+      "frameRate": 25,
+      "repeat": -1,
+      "showOnStart": true,
+      "hideOnComplete": true
+    }
+  ],
+  "globalTimeScale": 1
+}

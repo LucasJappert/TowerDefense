@@ -1,5 +1,5 @@
 import EscenaMain from "./EscenaMain.js";
-import EscenaTextos from "./EscenaTextos.js";
+import EscenaGUI from "./EscenaGUI.js";
 
 var _Pantalla = new Phaser.Math.Vector2(11, 13);
 // var _THP = 13;
@@ -11,15 +11,15 @@ var _Config = {
     },
     parent: 'content',
     width: _Pantalla.x * 64,
-    height: _Pantalla.y * 64 + 3 * 64,//13 mas 1 espacio en Top y 2 espacio en Bottom (para UI)
-    backgroundColor: '#001100',
+    height: _Pantalla.y * 64 + 4 * 64,//13 mas 2 espacio en Top y 2 espacio en Bottom (para UI)
+    backgroundColor: '#282219',
     physics: {
         default: 'arcade'
     },
     scene: [
         {create: create},
         EscenaMain,
-        EscenaTextos
+        EscenaGUI
     ] 
 };
 
