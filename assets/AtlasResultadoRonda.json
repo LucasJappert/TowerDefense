@@ -1,0 +1,36 @@
+{
+"frames":
+	[
+		{
+			"filename":"Win",
+			"frame":{"x":0,"y":0,"w":384,"h":192}
+		},
+		{
+			"filename":"Lose",
+			"frame":{"x":384,"y":0,"w":384,"h":192}
+		},
+		{
+			"filename":"PixelNegro",
+			"frame":{"x":768,"y":0,"w":64,"h":64}
+		},
+		{
+			"filename":"EstrellaVacia",
+			"frame":{"x":768,"y":64,"w":128,"h":128}
+		},
+		{
+			"filename":"EstrellaLlena",
+			"frame":{"x":896,"y":64,"w":128,"h":128}
+		},
+		{
+			"filename":"Brillo",
+			"frame":{"x":1024,"y":0,"w":192,"h":192}
+		}
+	],
+"meta":
+	{
+		"image":"AtlasResultadoRonda.png",
+		"size":{"w":2048,"h":2048},
+		"scale":1
+	}
+		
+}

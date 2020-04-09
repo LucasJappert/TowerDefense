@@ -22,7 +22,7 @@
 			"frame":{"x":128,"y":131,"w":128,"h":39}
 		},
 		{
-			"filename":"BotonCerrar",
+			"filename":"BotonCerrar1",
 			"frame":{"x":0,"y":192,"w":64,"h":64}
 		},
 		{
@@ -32,12 +32,58 @@
 		{
 			"filename":"BotonVentanaMenu",
 			"frame":{"x":0,"y":256,"w":384,"h":94}
+		},
+		{
+			"filename":"TopGUI",
+			"frame":{"x":0,"y":640,"w":512,"h":128}
+		},
+		{
+			"filename":"FondoBottom",
+			"frame":{"x":0,"y":768,"w":512,"h":109}
+		},
+		{
+			"filename":"VerticalBarGUI",
+			"frame":{"x":256,"y":128,"w":30,"h":128}
+		},
+		{
+			"filename":"FondoInfoDefensas",
+			"frame":{"x":896,"y":0,"w":384,"h":287}
+		},
+		{
+			"filename":"BotonUpgrade",
+			"frame":{"x":896,"y":334,"w":128,"h":50}
+		},
+		{
+			"filename":"BotonSell",
+			"frame":{"x":1024,"y":334,"w":128,"h":50}
+		},
+		{
+			"filename":"PixelNegro",
+			"frame":{"x":320,"y":128,"w":64,"h":64}
+		},
+		{
+			"filename":"BotonMenu1",
+			"frame":{"x":1280,"y":0,"w":128,"h":128}
+		},
+		{
+			"filename":"BotonRestart",
+			"frame":{"x":1408,"y":0,"w":128,"h":128}
+		},
+		{
+			"filename":"BotonNext",
+			"frame":{"x":1536,"y":0,"w":128,"h":128}
+		},
+		{
+			"filename":"BotonCerrar",
+			"frame":{"x":1664,"y":0,"w":128,"h":128}
+		},
+		{
+			"filename":"EscudoNova",
+			"frame":{"x":512,"y":512,"w":256,"h":256}
+		},
+		{
+			"filename":"EscudoNova1",
+			"frame":{"x":768,"y":512,"w":256,"h":256}
 		}
-	],
-"meta":
-	{
-		"image":"SpritesGUI.png",
-		"size":{"w":2048,"h":2048},
-		"scale":1
-	}
+	]
 }

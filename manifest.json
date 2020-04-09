@@ -1,0 +1,42 @@
+{
+    "name": "Tower Defense - Nova",
+    "short_name": "TD Nova",
+    "icons": [
+      {
+        "src": "/Images/Iconos/icon-128x128.png?version=3",
+        "sizes": "128x128",
+        "type": "image/png"
+      },
+      {
+        "src": "/Images/Iconos/icon-144x144.png?version=3",
+        "sizes": "144x144",
+        "type": "image/png"
+      },
+      {
+        "src": "/Images/Iconos/icon-152x152.png?version=3",
+        "sizes": "152x152",
+        "type": "image/png"
+      },
+      {
+        "src": "/Images/Iconos/icon-192x192.png?version=3",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/Images/Iconos/icon-256x256.png?version=3",
+        "sizes": "256x256",
+        "type": "image/png"
+      },
+      {
+        "src": "/Images/Iconos/icon-512x512.png?version=3",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "home.html",
+    "display": "fullscreen",
+    "background_color": "#4E3B11",
+    "theme_color": "#4E3B11",
+    "orientation": "natural"
+  }
+  
